@@ -10,6 +10,7 @@ CreateNnSkeleton <- function(p, m, q) {
     ##    - Length of m : number of hidden layers
     ##    - Value of m: number of nodes in that layer
     ##    Eg. m = c(3, 3) would give 2 hidden layers, with 3 hidden nodes each
+    ##   CURRENT ONLY WORKS WITH THREE HIDDEN LAYERS. STILL UNFINISHED
     ##
     ## Returns:
     ##   A list, with each item as the weights for each hidden layer

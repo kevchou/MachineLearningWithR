@@ -1,0 +1,147 @@
+* Neural Networks in R
+  This repository contains code for a simple neural network implemented using R.
+
+  First, load the data and functions into R, and any libraries such as ggplot2.
+  #+begin_src R :session :results silent :exports code
+    require(ggplot2)
+
+    source('functions.R')
+    source('display-image.R')
+
+    images = as.matrix(read.table('zip-images.txt'))
+    labels = read.table('zip-labels.txt')
+    rownames(images) = labels[,1]
+  #+end_src
+
+
+  The handwritten digits (the inputs) are 14x14 black and white images, which
+  look like:
+
+  #+begin_src R :session :file imageexample.png :results graphics output :exports results :width 750 :height 250
+    par(mfrow = c(1,3))
+    displayDigit(images[3,])
+    displayDigit(images[10,])
+    displayDigit(images[20,])
+    par(mfrow = c(1,1))
+  #+end_src
+
+  #+RESULTS:
+  [[file:imageexample.png]]
+
+
+  Each 14x14 images are broken down into a 1x196 vector. Each element in the
+  vector represents the intensity of each value (Ie. 0 = black, 1 = white).
+
+
+* Neural Network as a classifer
+  Neural networks can be used as a classifer. Using this handwritten digit
+  data, I train a neural network to classify the number based on the input (the
+  14x14 image).
+
+  First, I need to create a suitable output matrix. Currently I only have a
+  data frame, "labels", which contains the label for each image. Instead, I
+  need to transform each label into a zero vector of length 10, with the
+  (i+1)th element as 1 if the label is i. This is done with the following
+  function:
+
+  #+begin_src R :session :results value :exports both :colnames yes :rownames yes
+    CreateLabelVector <- function(label) {
+
+        label.vector <- rep(0, 10)
+        label.vector[label + 1] <- 1
+
+        return(label.vector)
+    }
+
+    labels.mat <- t(apply(labels, 1, FUN = CreateLabelVector))
+    colnames(labels.mat) <- paste(0:9)
+
+    head(labels.mat)
+  #+end_src
+
+  #+RESULTS:
+  |   | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 |
+  |---+---+---+---+---+---+---+---+---+---+---|
+  | 1 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+  | 2 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 | 0 |
+  | 3 | 0 | 0 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 |
+  | 4 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+  | 5 | 0 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
+  | 6 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 | 0 | 0 |
+
+  Next, I divide the original 'images' data into training and test sets.
+  #+begin_src R :session :results silent :exports code
+    train.idx <- sample(nrow(images), floor(0.80 * nrow(images)))
+
+    train.x <- images[train.idx, ]
+    train.y <- labels.mat[train.idx, ]
+
+    test.x <- images[-train.idx, ]
+    test.y <- labels.mat[-train.idx, ]
+  #+end_src
+
+  Then we can finally start training the neural network. The algorithm
+  optimizes the weights of the neural network by minimizing the log-likelihood
+  with respect to the weight variables via gradient descent. Look in
+  "functions.R" for more details.
+
+  #+begin_src R :session :results silent :exports code :cache yes
+    nn  <- TrainNn(train.y, train.x, c(15, 15, 15), eta = 0.00002, iters = 50000)
+  #+end_src
+
+  The trained neural network has 3 hidden layers, with 15 nodes in each. The
+  error can be plotted:
+
+  #+begin_src R :session :file errorplot.png :results graphics output :exports results :width 300 :height 300
+    error.df <- data.frame(iterations = c(1:length(nn$E)), error = nn$E)
+    ggplot(error.df, aes(x=iterations, y=error)) + geom_line() + ggtitle("Error vs Iteration")
+  #+end_src
+
+  #+RESULTS:
+  [[file:errorplot.png]]
+
+
+  It doesn't look like the neural network has converged yet. A few more
+  thousand iterations would improve the accuracy, but let's just try and
+  classify the observations in the test set now.
+
+  #+begin_src R :session :results value :exports both :colnames yes
+    ## Get classified values through forward propagation, using the estimated
+    ## weights from the fitted neural network
+    estimated <- ForwardPropagate(test.x, nn$W)$out
+
+
+    GetEstimatedLabel <- function(est) {
+        ## Takes estimated classifications and returns digit label
+        which.max(est) - 1
+    }
+
+
+    ## Gets estimated labels from the output of the neural network
+    estimated.digit <- apply(estimated, 1, FUN = GetEstimatedLabel)
+
+    ## True and predicted labels in same matrix
+    final.classified.vals <- cbind(True = labels[-train.idx, 1],
+                                     Predicted = estimated.digit)
+
+    head(final.classified.vals)
+  #+end_src
+
+  #+RESULTS:
+  | True | Predicted |
+  |------+-----------|
+  |    7 |         4 |
+  |    5 |         5 |
+  |    0 |         0 |
+  |    7 |         7 |
+  |    6 |         6 |
+  |    4 |         4 |
+
+
+  Accuracy:
+  #+begin_src R :session :results value :exports both
+    sum(final.classified.vals[, 1] == final.classified.vals[, 2]) / nrow(final.classified.vals)
+  #+end_src
+
+  #+RESULTS:
+  : 0.808333333333333

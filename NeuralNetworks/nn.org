@@ -15,19 +15,18 @@
     rownames(images) = labels[,1]
   #+end_src
 
-
   The handwritten digits (the inputs) are 14x14 black and white images. They be
   displayed with the follwing,
 
-  #+begin_src R :session :file imageexample.png :results graphics output :exports results :width 750 :height 250
+  #+begin_src R :session :file images/imageexample.png :results graphics output :exports results :width 750 :height 250
     par(mfrow = c(1,3))
     displayDigit(images[10,]); displayDigit(images[20,]); displayDigit(images[30,])
     par(mfrow = c(1,1))
   #+end_src
 
-  Three examples:
+  Three examples of the input images:
   #+RESULTS:
-  [[file:imageexample.png]]
+  [[file:images/imageexample.png]]
 
   Each 14x14 images is broken down into a 1x196 vector, which each element in
   the vector represents the intensity of each pixel (0 = black, 1 = white).
@@ -92,14 +91,13 @@
   The trained neural network has 3 hidden layers, with 15 nodes in each. The
   error can be plotted:
 
-  #+begin_src R :session :file errorplot.png :results graphics output :exports results :width 300 :height 300
+  #+begin_src R :session :file images/errorplot.png :results graphics output :exports results :width 300 :height 300
     error.df <- data.frame(iterations = c(1:length(nn$E)), error = nn$E)
     ggplot(error.df, aes(x=iterations, y=error)) + geom_line() + ggtitle("Error vs Iteration")
   #+end_src
 
   #+RESULTS:
-  [[file:errorplot.png]]
-
+  [[file:images/errorplot.png]]
 
   It doesn't look like the neural network has converged yet. A few more
   thousand iterations would improve the accuracy, but let's just try and

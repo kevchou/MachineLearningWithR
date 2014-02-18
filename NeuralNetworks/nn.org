@@ -1,7 +1,9 @@
 * Neural Networks in R
-  This repository contains code for a simple neural network implemented using R.
+  This repository contains code for a simple neural network example implemented
+  in R.
 
-  First, load the data and functions into R, and any libraries such as ggplot2.
+  I begin by first loading the data and functions into R, and any libraries such
+  as ggplot2.
   #+begin_src R :session :results silent :exports code
     require(ggplot2)
 
@@ -14,35 +16,31 @@
   #+end_src
 
 
-  The handwritten digits (the inputs) are 14x14 black and white images, which
-  look like:
+  The handwritten digits (the inputs) are 14x14 black and white images. They be
+  displayed with the follwing,
 
   #+begin_src R :session :file imageexample.png :results graphics output :exports results :width 750 :height 250
     par(mfrow = c(1,3))
-    displayDigit(images[3,])
-    displayDigit(images[10,])
-    displayDigit(images[20,])
+    displayDigit(images[10,]); displayDigit(images[20,]); displayDigit(images[30,])
     par(mfrow = c(1,1))
   #+end_src
 
+  Three examples:
   #+RESULTS:
   [[file:imageexample.png]]
 
-
-  Each 14x14 images are broken down into a 1x196 vector. Each element in the
-  vector represents the intensity of each value (Ie. 0 = black, 1 = white).
-
+  Each 14x14 images is broken down into a 1x196 vector, which each element in
+  the vector represents the intensity of each pixel (0 = black, 1 = white).
 
 * Neural Network as a classifer
   Neural networks can be used as a classifer. Using this handwritten digit
   data, I train a neural network to classify the number based on the input (the
   14x14 image).
 
-  First, I need to create a suitable output matrix. Currently I only have a
-  data frame, "labels", which contains the label for each image. Instead, I
-  need to transform each label into a zero vector of length 10, with the
-  (i+1)th element as 1 if the label is i. This is done with the following
-  function:
+  A suitable output matrix needs to be created first. Currently there is only a
+  data frame, "labels", which contains the label for each image. I need to
+  transform each label into a zero vector of length 10, with the (i+1)th element
+  = 1 if the label is /i/. This is done with the following function:
 
   #+begin_src R :session :results value :exports both :colnames yes :rownames yes
     CreateLabelVector <- function(label) {
@@ -59,6 +57,7 @@
     head(labels.mat)
   #+end_src
 
+  The first 6 rows of the newly created output matrix:
   #+RESULTS:
   |   | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 |
   |---+---+---+---+---+---+---+---+---+---+---|
@@ -69,7 +68,8 @@
   | 5 | 0 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
   | 6 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 | 0 | 0 |
 
-  Next, I divide the original 'images' data into training and test sets.
+  Before I start training the neural network, I divide the original 'images'
+  data into training and test sets.
   #+begin_src R :session :results silent :exports code
     train.idx <- sample(nrow(images), floor(0.80 * nrow(images)))
 
@@ -145,3 +145,5 @@
 
   #+RESULTS:
   : 0.808333333333333
+
+  The neural network was able to identify approximately 81% of the test set.

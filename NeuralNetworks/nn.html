@@ -1,13 +1,13 @@
-<?xml version="1.0" encoding="iso-8859-1"?>
+<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
                "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
 <title>nn</title>
-<meta http-equiv="Content-Type" content="text/html;charset=iso-8859-1"/>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
 <meta name="title" content="nn"/>
 <meta name="generator" content="Org-mode"/>
-<meta name="generated" content="2014-02-17T19:45-0500"/>
+<meta name="generated" content="2014-02-17T22:44-0500"/>
 <meta name="author" content=""/>
 <meta name="description" content=""/>
 <meta name="keywords" content=""/>
@@ -132,10 +132,12 @@ for the JavaScript code in this tag.
 <h2 id="sec-1"><span class="section-number-2">1</span> Neural Networks in R</h2>
 <div class="outline-text-2" id="text-1">
 
-<p>  This repository contains code for a simple neural network implemented using R.
+<p>  This repository contains code for a simple neural network example implemented
+  in R.
 </p>
 <p>
-  First, load the data and functions into R, and any libraries such as ggplot2.
+  I begin by first loading the data and functions into R, and any libraries such
+  as ggplot2.
 </p>
 
 
@@ -152,20 +154,27 @@ rownames(images) = labels[,1]
 
 
 <p>
-  The handwritten digits (the inputs) are 14x14 black and white images, which
-  look like:
+  The handwritten digits (the inputs) are 14x14 black and white images. They be
+  displayed with the follwing,
 </p>
 
 
 <p>
   <img src="imageexample.png"  alt="imageexample.png" />
 </p>
-
 <p>
-  Each 14x14 images are broken down into a 1x196 vector. Each element in the
-  vector represents the intensity of each value (Ie. 0 = black, 1 = white).
+  Three examples:
+  <img src="imageexample.png"  alt="imageexample.png" />
 </p>
 
+<p>
+  <img src="imageexample.png"  alt="imageexample.png" />
+</p>
+
+<p>
+  Each 14x14 images is broken down into a 1x196 vector, which each element in
+  the vector represents the intensity of each pixel (0 = black, 1 = white).
+</p>
 </div>
 
 </div>
@@ -179,11 +188,10 @@ rownames(images) = labels[,1]
   14x14 image).
 </p>
 <p>
-  First, I need to create a suitable output matrix. Currently I only have a
-  data frame, "labels", which contains the label for each image. Instead, I
-  need to transform each label into a zero vector of length 10, with the
-  (i+1)th element as 1 if the label is i. This is done with the following
-  function:
+  A suitable output matrix needs to be created first. Currently there is only a
+  data frame, "labels", which contains the label for each image. I need to
+  transform each label into a zero vector of length 10, with the (i+1)th element
+  = 1 if the label is <i>i</i>. This is done with the following function:
 </p>
 
 
@@ -221,7 +229,27 @@ head(labels.mat)
 
 
 <p>
-  Next, I divide the original 'images' data into training and test sets.
+  The first 6 rows of the newly created output matrix:
+</p><table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+<colgroup><col class="right" /><col class="right" /><col class="right" /><col class="right" /><col class="right" /><col class="right" /><col class="right" /><col class="right" /><col class="right" /><col class="right" /><col class="right" />
+</colgroup>
+<thead>
+<tr><th scope="col" class="right"></th><th scope="col" class="right">0</th><th scope="col" class="right">1</th><th scope="col" class="right">2</th><th scope="col" class="right">3</th><th scope="col" class="right">4</th><th scope="col" class="right">5</th><th scope="col" class="right">6</th><th scope="col" class="right">7</th><th scope="col" class="right">8</th><th scope="col" class="right">9</th></tr>
+</thead>
+<tbody>
+<tr><td class="right">1</td><td class="right">0</td><td class="right">1</td><td class="right">0</td><td class="right">0</td><td class="right">0</td><td class="right">0</td><td class="right">0</td><td class="right">0</td><td class="right">0</td><td class="right">0</td></tr>
+<tr><td class="right">2</td><td class="right">0</td><td class="right">0</td><td class="right">0</td><td class="right">0</td><td class="right">0</td><td class="right">0</td><td class="right">0</td><td class="right">0</td><td class="right">1</td><td class="right">0</td></tr>
+<tr><td class="right">3</td><td class="right">0</td><td class="right">0</td><td class="right">0</td><td class="right">0</td><td class="right">0</td><td class="right">1</td><td class="right">0</td><td class="right">0</td><td class="right">0</td><td class="right">0</td></tr>
+<tr><td class="right">4</td><td class="right">0</td><td class="right">1</td><td class="right">0</td><td class="right">0</td><td class="right">0</td><td class="right">0</td><td class="right">0</td><td class="right">0</td><td class="right">0</td><td class="right">0</td></tr>
+<tr><td class="right">5</td><td class="right">0</td><td class="right">0</td><td class="right">0</td><td class="right">0</td><td class="right">1</td><td class="right">0</td><td class="right">0</td><td class="right">0</td><td class="right">0</td><td class="right">0</td></tr>
+<tr><td class="right">6</td><td class="right">0</td><td class="right">0</td><td class="right">0</td><td class="right">0</td><td class="right">0</td><td class="right">0</td><td class="right">0</td><td class="right">1</td><td class="right">0</td><td class="right">0</td></tr>
+</tbody>
+</table>
+
+
+<p>
+  Before I start training the neural network, I divide the original 'images'
+  data into training and test sets.
 </p>
 
 
@@ -295,12 +323,12 @@ head(final.classified.vals)
 <tr><th scope="col" class="right">True</th><th scope="col" class="right">Predicted</th></tr>
 </thead>
 <tbody>
-<tr><td class="right">5</td><td class="right">5</td></tr>
+<tr><td class="right">7</td><td class="right">7</td></tr>
 <tr><td class="right">4</td><td class="right">4</td></tr>
-<tr><td class="right">0</td><td class="right">0</td></tr>
-<tr><td class="right">1</td><td class="right">1</td></tr>
+<tr><td class="right">7</td><td class="right">7</td></tr>
+<tr><td class="right">5</td><td class="right">5</td></tr>
+<tr><td class="right">2</td><td class="right">2</td></tr>
 <tr><td class="right">9</td><td class="right">9</td></tr>
-<tr><td class="right">3</td><td class="right">5</td></tr>
 </tbody>
 </table>
 
@@ -316,15 +344,18 @@ head(final.classified.vals)
 
 
 <pre class="example">
-0.816666666666667
+0.866666666666667
 </pre>
 
-</div>
+
+<p>
+  The neural network was able to identify approximately 81% of the test set.
+</p></div>
 </div>
 </div>
 
 <div id="postamble">
-<p class="date">Date: 2014-02-17T19:45-0500</p>
+<p class="date">Date: 2014-02-17T22:44-0500</p>
 <p class="author">Author: </p>
 <p class="creator"><a href="http://orgmode.org">Org</a> version 7.9.3f with <a href="http://www.gnu.org/software/emacs/">Emacs</a> version 24</p>
 <a href="http://validator.w3.org/check?uri=referer">Validate XHTML 1.0</a>

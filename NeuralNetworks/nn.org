@@ -29,7 +29,8 @@
   [[file:images/imageexample.png]]
 
   Each 14x14 images is broken down into a 1x196 vector, which each element in
-  the vector represents the intensity of each pixel (0 = black, 1 = white).
+  the vector represents the intensity of each pixel ranging from 0 to 1, where 0
+  = black and 1 = white.
 
 * Neural Network as a classifer
   Neural networks can be used as a classifer. Using this handwritten digit

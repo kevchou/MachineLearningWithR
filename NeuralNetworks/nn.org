@@ -153,4 +153,4 @@
 
   More details added later..
 
-  [[file:images/nn.png]]
+  [[file:images/nn.PNG]]

@@ -1,0 +1,44 @@
+* Decrypting simple substitution ciphers using Markov Chain Monte Carlo
+
+For details on how this works, read the PDF file, "MonteCarloProject.pdf".
+
+A simple substitution cipher simply replaces one letter of the alphabet with
+another. Say we have the following mapping:
+
+| Alphabet | A | B | C | D | E | F | G | H | I | J | K | L | M | N | O | P | Q | R | S | T | U | V | W | X | Y | Z |
+| Mapping  | K | N | Q | B | G | C | R | H | Y | J | E | V | U | T | D | F | P | O | X | I | L | W | Z | M | S | A |
+
+Using the above mapping, We can encrpy any string of text simply by replacing
+the letters in the string with the corresponding letter in the mapping. For
+example: "MONTE CARLO METHODS" -> "UDTIG QKOVD UGIHDBX"
+
+In this project my partner and I encrypt then decrypt one of my favourite books,
+"Flatland" by Edwin A Abbott, using this substitution cipher and MCMC.
+
+* How it works
+The idea is quite simple. In the english language pairs of letters appear more
+frequently than others. For example, "QU" is a very common pair, as "Q" is
+almost always followed by a "U". Other common pairs include "ED" or "TS". The
+following shows the probabilities of pairs of letters appearing one after the
+other, using "War and Peace" by Leo Tolstoy.
+
+[[file:probgrid.png]]
+
+We used "War and Peace" to train our model to 'learn' the most frequently
+occuring pairs, and based on these frequencies we swap letters in a random
+mapping around until our MCMC algorithm converges.
+
+Below is an example of a single run of our MCMC algorithm:
+
+| Iteration | Cipher Text                                               |
+|         0 | SLM JCGQANU HUCENIEQH MGFFO GB WXBCXBNV GJ ATYID B EGGFSS |
+|      1000 | SHE BSOQECT GOTENBERG EBAAX OF FMATMAND BL ERGIN A IBBASS |
+|      2000 | THE PSOZECT GUTENLERG EBAAX OF FMATMAND BF EGRIN A OBBATT |
+|      3000 | THE PROZECT GUTENBERG EBAAK OD FMATMAND BY EGWIN A OBBATT |
+|      4000 | THE PROJECT GUTENBERG EBOOK OD FLATLAND BY EFWIN A ABBOTT |
+|      5000 | THE PROJECT GUTENBERG EBOOK OD FLATLAND BY EFWIN A ABBOTT |
+|      6000 | THE PROJECT GUTENBERG EBOOK OD FLATLAND BY EFWIN A ABBOTT |
+|      7000 | THE PROJECT GUTENBERG EBOOK OD FLATLAND BY EFWIN A ABBOTT |
+|      8000 | THE PROJECT GUTENBERG EBOOK OF FLATLAND BY EDWIN A ABBOTT |
+|      9000 | THE PROJECT GUTENBERG EBOOK OF FLATLAND BY EDWIN A ABBOTT |
+|     10000 | THE PROJECT GUTENBERG EBOOK OF FLATLAND BY EDWIN A ABBOTT |

@@ -1,8 +1,6 @@
 MachineLearningWithR
 ====================
 
-Some machine learning algorithms implemented with R
+Some machine learning algorithms implemented with R. 
 
-Open the .org file in each subdirectory for details.
-
-Eg. NeuralNetworks/nn.org
+Check out the readme.org file in each subdirectory for details.

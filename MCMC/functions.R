@@ -2,94 +2,57 @@ library(stringr)
 library(ggplot2)
 library(reshape2)
 
-## Functions --------------------------------------------------------------------
 
+## Removes all punctuation, numbers, multiple spaces from a string input
 textonly <- function(x) {
-
-    ## Removes all punctuation, numbers, multiple spaces from a string input
-
     x <- str_replace_all(x, "[[:punct:]]", "")   # Removes all symbols
     x <- str_replace_all(x, "[[:digit:]]", "")   # Removes all numbers
-    x2 <- str_replace_all(x, "  ", " ")          # Removes duplicate spaces
-
+    x2 <- str_replace_all(x, "  ", " ")
     while (x2 != x) {
         x <- x2
         x2 <- str_replace_all(x2, "  ", " ")
     }
-
     x2
 }
 
-
+## Decrypts or encrypts a string using a specified mapping
+## decipher=TRUE: input an ENCRYPTED string, outputs decrypted string using mapping
+## decipher=FALSE: input an UNENCRYPTED string, encrypts it using specified mapping
 decipher <- function(input, mapping, decipher=TRUE) {
-
-    ## Decrypts or encrypts a string using a specified mapping
-
-    ## Args:
-    ## input: the text to decrypt/encrypt
-    ## mapping: the mapping used to decrypt/encrypt the input
-    ## decipher: if true, decrypts INPUT with MAPPING, else decrypts
-
     mapping <- paste(mapping, collapse="")
-    letter  <- paste(toupper(letters), collapse="")
-    input   <- toupper(input)
-
-    ## Whether to decrypt or encrypt, with input MAPPING
-    if (decipher) {
-        output <- chartr(mapping, letter, input)
-    } else {
-        output <- chartr(letter, mapping, input)
-    }
-
-    return(output)
+    letter <- paste(toupper(letters), collapse="")
+    input <- toupper(input)
+    if (decipher) { output <- chartr(mapping, letter, input) }
+    else {output <- chartr(letter, mapping, input)}
+    output
 }
 
-
+## Calculates Score using specified mapping
 score <- function(string_input, mapping) {
-
-    ## Calculates Score using specified mapping.
-
     string_deciphered <- decipher(string_input, mapping)
     temp <- embed(unlist(strsplit(toupper(string_deciphered), '')), 2)
     temp.count <- table( temp[,2], temp[,1])
     temp.melt <- melt(temp.count)
 
     let <- c(' ', toupper(letters) )
-
-    score <- 0
-
+    score= 0
     for (i in let) {
-
         for (j in let) {
-
             r.ij <- pair.count$value[which(pair.count$Var1==i & pair.count$Var2==j)] + 1
-
             fx.ij <- temp.melt$value[which(temp.melt$Var1==i & temp.melt$Var2==j)] + 1
-
-            if (is.na(fx.ij) || length(fx.ij) == 0) {
-                fx.ij = 1
-            }
-
+            if (is.na(fx.ij) || length(fx.ij) == 0) { fx.ij = 1 }
             score = score + fx.ij*log(r.ij)
         }
     }
     score
 }
 
-
-run.mcmc.decipher <- function(to_decipher,
-                              p = 1,
-                              iterations=2000,
-                              start.map = sample(toupper(letters))) {
-
-    ## Attempts to decrypt simple substitution cipher using MCMC
-    ##
-    ## Args:
-    ## to_decipher: the encrypted text
-    ## p: scaling parameter (tempering)
-    ## iterations: max no. of iterations
-    ## start.map: mapping to start with (random by default)
-
+## Attempts to decrypt simple substitution cipher using MCMC
+## inputs: encrypted string
+## p = scaling parameter (tempering)
+## iterations = max no. of iterations
+## start.map= mapping to start with (random by default)
+run.mcmc.decipher <- function(to_decipher, p=1, iterations=2000, start.map = sample(toupper(letters)) ) {
     mapping <- start.map
 
     current.decipher <- decipher(to_decipher, mapping)
@@ -131,72 +94,44 @@ run.mcmc.decipher <- function(to_decipher,
     return(ret)
 }
 
-
+## Splits a string into "period" substrings
 text.split <- function(x, period) {
-
-    ## Splits a string into "period" substrings
-
     x <- unlist(strsplit(x," "))  # Splits string into words
+    string = matrix(0, nrow=ceiling(length(x)/period) ,ncol=period)
 
-    string <- matrix(0, nrow=ceiling(length(x)/period) ,ncol=period)
-
-    for (i in 1:ceiling(length(x)/period)) {
-
+    for ( i in 1:ceiling(length(x)/period)) {
         temp <- NULL
-
         for (j in (period*(i-1) +1) :(i*period)) {
-
-            if ( is.na(x[j]))
-                x[j] = ""
-
+            if ( is.na(x[j])) { x[j] = ""}
             temp <- c(temp, x[j])
-
         }
-
         string[i,] = temp
     }
-
     out <- list()
-
     for (i in 1:period) {
         out[[i]] <- paste(string[,i], collapse=" ")
     }
-
     unlist(out)
 }
 
-
+## Decrypts substitution cipher with different mapping every period
 decipher2 <- function(input.string, map.list, period, ...) {
-
-    ## Decrypts substitution cipher with different mapping every period
-
     string.split <- text.split(input.string, period)
-    deciphered   <- list()
-
+    deciphered <- list()
     for (i in 1:period) {
-
         deciphered[[i]] <- decipher(string.split[i], map.list[[i]], ...)
         deciphered[[i]] <- unlist(strsplit(deciphered[[i]], " "))
-
     }
 
     if (period > 1) {
-
         n <- length(deciphered[[1]])
-
         for (j in 2:period) {
-
             if (length(deciphered[[j]]) < n) { deciphered[[j]] <- c(deciphered[[j]], "")}
-
         }
     }
-
     recombine.mat <- NULL
-
     for (i in 1:period) {
-
         recombine.mat <- cbind(recombine.mat, deciphered[[i]])
-
     }
     recombined <- paste(as.vector(t(recombine.mat)), collapse=" ")
     textonly(recombined)
@@ -231,7 +166,6 @@ run.mcmc.decipher2 <- function(to_decipher, period, p=1, iterations=2000) {
     numaccept <- 0
     list <- list()
     while( i <= iterations) {
-
         ## Randomly switch 2 letters in the mapping
         proposal.list <- list()
         prop.mapping.list = map.list
@@ -272,6 +206,7 @@ run.mcmc.decipher2 <- function(to_decipher, period, p=1, iterations=2000) {
 
 ## MCMC decipher with periods, using random scan updating 1 map at a time
 run.mcmc.decipher.random <- function(to_decipher, period, p=1, iterations=2000) {
+
     map.list <- list()
     for (i in 1:period){
         map.list[[i]] <- sample(toupper(letters))
@@ -287,7 +222,6 @@ run.mcmc.decipher.random <- function(to_decipher, period, p=1, iterations=2000) 
     numaccept <- 0
     list <- list()
     while( i <= iterations) {
-
         ## Randomly switch 2 letters in the mapping
         ## random scan through no. of periods
         prop.mapping.list = map.list
@@ -320,7 +254,7 @@ run.mcmc.decipher.random <- function(to_decipher, period, p=1, iterations=2000) 
             list <- rbind(list, c(i, substring(current.decipher, 1, 60), current.score, accuracy))
         }
 
-        ## Prints out current iteratoin info
+        ## Prints out current iteration info
         cat(i, substring(current.decipher,1,60), current.score, accuracy, '\n')
         i=i+1
     }
@@ -329,7 +263,7 @@ run.mcmc.decipher.random <- function(to_decipher, period, p=1, iterations=2000) 
     return(ret)
 }
 
-## Creates 'period' random mappings
+                                        ## Creates 'period' random mappings
 create.map <- function(period) {
     map.list <- list()
     for (i in 1:period) {
@@ -366,16 +300,16 @@ unigram <- function(test) {
 }
 
 
-## Reference  -------------------------------------------------------
-## readfile <- readLines('warandpeace.txt')            # Reads in War and Peace text file
-## training <- toupper(paste(readfile, collapse=' '))  # Collapses it to one line
-## training <- textonly(training)
+## Set up War and Peace for reference text
+readfile <- readLines('warandpeace.txt')            # Read in War and Peace text file
+training <- toupper(paste(readfile, collapse=' '))  # Collapses it to one line
+training <- textonly(training)
 
-## ## Creates a table of number of times (row letter) is followed by (column letter)
-## let <- unlist(strsplit(training, ''))
-## let2 <- embed(let, 2)
-## mat.count <- table( let2[,2], let2[,1] )
-## pair.count <- melt(mat.count)
+## Creates a table of number of times (row letter) is followed by (column letter)
+let <- unlist(strsplit(training, ''))
+let2 <- embed(let, 2)
+mat.count <- table( let2[,2], let2[,1] )
+pair.count <- melt(mat.count)
 
-## ## Divides each number in a row by its row sum. Frequency
-## mat.trans <- sweep( mat.count, 1, rowSums(mat.count), FUN='/')
+## Divides each number in a row by its row sum. Frequency
+mat.trans <- sweep( mat.count, 1, rowSums(mat.count), FUN='/')
